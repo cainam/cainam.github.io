@@ -1,0 +1,43 @@
+name: Generate Site Inventory
+
+# This workflow can run:
+# 1. On a schedule (e.g., every day at midnight UTC)
+# 2. Manually via the 'workflow_dispatch' event
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual triggering from the GitHub UI
+
+jobs:
+  generate-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # This token is needed to push changes back to the repository and to fetch repository list from GitHub API.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+        
+      - name: Install dependencies
+        run: pip install pyyaml requests
+
+      - name: Run inventory generation script
+        run: python generate_inventory.py
+        env:
+          GITHUB_OWNER: cainam
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add _data/site_inventory.yml
+          git diff --staged --quiet || git commit -m "Automated: Update site inventory"
+          git push
+        # The `git diff` part checks if there are actual changes before committing.
+        # This prevents empty commits if no new repos or changes were found.
