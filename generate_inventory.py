@@ -35,7 +35,7 @@ def generate_site_inventory():
         if repo.get('has_pages') and not repo.get('archived') and repo['name'] != f"{GITHUB_OWNER}.github.io":
             site_inventory.append({
                 "name": repo['name'].replace('-', ' ').title(), # Example: "my-project" -> "My Project"
-                "url": f"https://{GITHUB_OWNER}.github.io/{repo['name']}/" # instead of the repo url# repo['html_url'],
+                "url": f"https://{GITHUB_OWNER}.github.io/{repo['name']}/", # instead of the repo url# repo['html_url'],
                 "description": repo['description'] if repo['description'] else f"A project about {repo['name'].replace('-', ' ')}."
             })
 
