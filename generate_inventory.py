@@ -56,7 +56,7 @@ def generate_site_inventory():
     site_inventory = []
     for repo in repos:
         if repo.get('has_pages') and not repo.get('archived'):
-            if repo['name'] != f"{GITHUB_OWNER}.github.io":
+            if repo['name'] == f"{GITHUB_OWNER}.github.io":
                 name = "Main"
                 url = f"https://{GITHUB_OWNER}.github.io/"
             else:
