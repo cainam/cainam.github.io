@@ -8,9 +8,6 @@ GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 # GitHub API Endpoint for a user's repositories:
 API_REPOS = f"https://api.github.com/users/{GITHUB_OWNER}/repos"
 
-import requests
-import os
-
 def check_file_exists_and_fetch(repo, path, headers):
     """
     Checks if a file exists in a GitHub repository and, if so, fetches its content.
@@ -28,24 +25,24 @@ def check_file_exists_and_fetch(repo, path, headers):
         headers["Accept"] = "application/vnd.github.v3.raw"
         get_response = requests.get(base_url, headers=headers, timeout=10)
         get_response.raise_for_status()
-        return True, get_response.text
+        return True, get_response.text.split("\n")
 
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 404:
             print(f"File '{path}' not found (404 Error).")
-            return False, None
+            return False, []
         else:
             print(f"An HTTP error occurred: {e}")
-            return False, None
+            return False, []
     except requests.exceptions.ConnectionError as e:
         print(f"A connection error occurred: {e}")
-        return False, None
+        return False, []
     except requests.exceptions.Timeout as e:
         print(f"The request timed out: {e}")
-        return False, None
+        return False, []
     except requests.exceptions.RequestException as e:
         print(f"An unexpected request error occurred: {e}")
-        return False, None
+        return False, []
 
 def generate_site_inventory():
     headers = {
@@ -58,11 +55,6 @@ def generate_site_inventory():
 
     site_inventory = []
     for repo in repos:
-        # Filter for repositories that are likely GitHub Pages project sites.
-        # You can customize this logic:
-        # - `has_pages`: Checks if GitHub Pages is enabled for the repo.
-        # - `!repo['archived']`: Excludes archived repositories.
-        # - `repo['name'] != f"{GITHUB_OWNER}.github.io"`: Excludes the general pages repo itself.
         if repo.get('has_pages') and not repo.get('archived'):
             if repo['name'] != f"{GITHUB_OWNER}.github.io":
                 name = "Main"
@@ -74,7 +66,8 @@ def generate_site_inventory():
             site_inventory.append({
                 "name": name,
                 "url": url,
-                "description": repo['description'] if repo['description'] else f""
+                "description": repo['description'] if repo['description'] else f"",
+                "pages": pages
             })
 
     # Sort the inventory alphabetically by name (optional)
