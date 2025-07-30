@@ -2,9 +2,9 @@
   url: https://cainam.github.io/
   description: the main page
 - name: Gentoo Image Builder
-  url: https://github.com/cainam/gentoo-image-builder
+  url: https://cainam.github.io/gentoo-image-builder/
   description: Create minimalistic image from scratch and fully controlled
 - name: Krysyntyz
-  url: https://github.com/cainam/krysyntyz
+  url: https://cainam.github.io/krysyntyz/
   description: Kubernetes cluster with oauth, keycloak, local repository management
     used for home.assistant
