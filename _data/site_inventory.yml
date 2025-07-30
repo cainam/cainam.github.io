@@ -1,7 +1,8 @@
 - name: Gentoo Image Builder
   url: https://cainam.github.io/gentoo-image-builder/
   description: Create minimalistic image from scratch and fully controlled
-  pages: []
+  pages:
+  - ''
 - name: Krysyntyz
   url: https://cainam.github.io/krysyntyz/
   description: Kubernetes cluster with oauth, keycloak, local repository management
