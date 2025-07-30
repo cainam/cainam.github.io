@@ -12,6 +12,13 @@
                   {{ page.name }}
                 </a>
               </li>
+                  <ul>
+                          {% for p in page.pages %}
+                            <li>
+                                    <a href="{{ page.url }}{{p}}/">{{p}}</a>
+                            </li>
+                          {% endfor %}
+                  </ul>
             {% endfor %}
           </ul>
         </nav>
