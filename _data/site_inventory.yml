@@ -1,10 +1,10 @@
-- name: General Pages Home
+- name: Cainam.Github.Io
+  url: https://cainam.github.io/cainam.github.io/
+  description: ''
+- name: Main
   url: https://cainam.github.io/
-  description: the main page
-- name: Gentoo Image Builder
-  url: https://cainam.github.io/gentoo-image-builder/
   description: Create minimalistic image from scratch and fully controlled
-- name: Krysyntyz
-  url: https://cainam.github.io/krysyntyz/
+- name: Main
+  url: https://cainam.github.io/
   description: Kubernetes cluster with oauth, keycloak, local repository management
     used for home.assistant
