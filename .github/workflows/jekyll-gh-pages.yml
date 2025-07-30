@@ -33,7 +33,7 @@ jobs:
           mkdir -p docs/_data/
           curl -o docs/_data/site_inventory.yml https://raw.githubusercontent.com/cainam/cainam.github.io/main/_data/site_inventory.yml
           cat docs/_data/site_inventory.yml
-      - name: fetch includes and layouts frmo main repository
+      - name: fetch includes and layouts from main repository
         #if: github.event_name == 'workflow_call'
         if: github.repository != 'cainam/cainam.github.io'
         run: |
