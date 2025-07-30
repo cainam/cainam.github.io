@@ -33,6 +33,7 @@ jobs:
           mkdir -p docs/_data/
           curl -o docs/_data/site_inventory.yml https://raw.githubusercontent.com/cainam/cainam.github.io/main/_data/site_inventory.yml
           cat docs/_data/site_inventory.yml
+          
       - name: fetch includes and layouts from main repository
         #if: github.event_name == 'workflow_call'
         if: github.repository != 'cainam/cainam.github.io'
@@ -41,13 +42,20 @@ jobs:
           curl -o docs/_includes/global_nav.html https://raw.githubusercontent.com/cainam/cainam.github.io/main/docs/_includes/global_nav.html
           curl -o docs/_layouts/default.html https://raw.githubusercontent.com/cainam/cainam.github.io/main/docs/_layouts/default.html
           ls -Rl docs
+          
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./docs
           destination: ./_site
+
+      - name: resulting pages
+        run: |
+          ls -l ./_site
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
