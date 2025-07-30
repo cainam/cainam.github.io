@@ -1,8 +1,4 @@
 name: Generate Site Inventory
-
-# This workflow can run:
-# 1. On a schedule (e.g., every day at midnight UTC)
-# 2. Manually via the 'workflow_dispatch' event
 on:
   schedule:
     - cron: '0 0 * * *' # Runs daily at midnight UTC
@@ -39,7 +35,5 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add _data/site_inventory.yml
-          git diff --staged --quiet || git commit -m "Automated: Update site inventory"
+          git diff --staged --quiet || git commit -m "Automated: Update site inventory" # git diff to prevent empty commits
           git push
-        # The `git diff` part checks if there are actual changes before committing.
-        # This prevents empty commits if no new repos or changes were found.
