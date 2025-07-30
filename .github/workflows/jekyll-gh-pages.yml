@@ -38,8 +38,8 @@ jobs:
         if: github.repository != 'cainam/cainam.github.io'
         run: |
           mkdir -p docs/_includes docs/_layouts
-          curl -o docs/_includes/site_inventory.yml https://raw.githubusercontent.com/cainam/cainam.github.io/main/docs/_includes/global_nav.html
-          curl -o docs/_layouts/site_inventory.yml https://raw.githubusercontent.com/cainam/cainam.github.io/main/docs/_layouts/default.html
+          curl -o docs/_includes/global_nav.html https://raw.githubusercontent.com/cainam/cainam.github.io/main/docs/_includes/global_nav.html
+          curl -o docs/_layouts/default.html https://raw.githubusercontent.com/cainam/cainam.github.io/main/docs/_layouts/default.html
           ls -Rl docs
       - name: Setup Pages
         uses: actions/configure-pages@v5
