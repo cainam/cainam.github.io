@@ -58,7 +58,12 @@ jobs:
 
       - name: resulting pages
         run: |
-          find ./_site -maxdepth 1 -name "*.html" -printf "%f\n"|while read f;do basename "${f}"|sed -e 's/\.html$//g';done 
+          mkdir -p "./docs/_data"
+          find ./_site -maxdepth 1 -name "*.html" -printf "%f\n"|while read f;do basename "${f}"|sed -e 's/\.html$//g';done > ./docs/_data/pages.txt
+          git config user.name "GitHub Actions" && git config user.email "actions@github.com"
+          git add ./docs/_data/pages.txt
+          git diff --staged --quiet || git commit -m "Automated: pages inventory of repo" # git diff to prevent empty commits
+          git push
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
