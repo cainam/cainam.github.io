@@ -13,11 +13,11 @@
                 </a>
               </li>
                   <ul>
-                          {% for p in page.pages %}
-                            <li>
+                          {% for p in page.pages %}{% if p %}
+                            <li> 
                                     <a href="{{ page.url }}{{p}}">{{p}}</a>
                             </li>
-                          {% endfor %}
+                          {% endif %}{% endfor %}
                   </ul>
             {% endfor %}
           </ul>
