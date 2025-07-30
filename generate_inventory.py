@@ -70,7 +70,7 @@ def generate_site_inventory():
             else:
                 name = repo['name'].replace('-', ' ').title()
                 url = f"https://{GITHUB_OWNER}.github.io/{repo['name']}/"
-            got_pages, pages = check_file_exists_and_fetch(repo['name'], 'docs/_data/pages.txt', headers):
+            got_pages, pages = check_file_exists_and_fetch(repo['name'], 'docs/_data/pages.txt', headers)
             site_inventory.append({
                 "name": name,
                 "url": url,
