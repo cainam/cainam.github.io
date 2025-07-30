@@ -33,6 +33,13 @@ jobs:
           mkdir -p docs/_data/
           curl -o docs/_data/site_inventory.yml https://raw.githubusercontent.com/cainam/cainam.github.io/main/_data/site_inventory.yml
           cat docs/_data/site_inventory.yml
+      - name: fetch includes and layouts frmo main repository
+        if: github.event_name == 'workflow_call'
+        run: |
+          mkdir -p docs/_includes docs/_layouts
+          curl -o docs/_includes/site_inventory.yml https://raw.githubusercontent.com/cainam/cainam.github.io/main/docs/_includes/global_nav.html
+          curl -o docs/_layouts/site_inventory.yml https://raw.githubusercontent.com/cainam/cainam.github.io/main/docs/_layouts/default.html
+          ls -Rl docs
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Build with Jekyll
