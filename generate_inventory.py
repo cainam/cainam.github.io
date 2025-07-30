@@ -6,37 +6,75 @@ GITHUB_OWNER = os.getenv('GITHUB_OWNER', 'cainam') # Get from environment, defau
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
 # GitHub API Endpoint for a user's repositories:
-API_URL = f"https://api.github.com/users/{GITHUB_OWNER}/repos"
+API_REPOS = f"https://api.github.com/users/{GITHUB_OWNER}/repos"
+
+import requests
+import os
+
+def check_file_exists_and_fetch(repo, path, headers):
+    """
+    Checks if a file exists in a GitHub repository and, if so, fetches its content.
+    Args:
+        repo (str): The name of the repository.
+        path (str): The path to the file within the repository (e.g., 'src/main.py').
+    Returns:
+        tuple: (bool, str or None) - (True if file exists, file content if exists else None)
+    """
+    base_url = f"https://api.github.com/repos/{GITHUB_OWNER}/{repo}/contents/{path}"
+
+    print(f"Checking for file existence: {base_url}")
+
+    try:
+        headers["Accept"] = "application/vnd.github.v3.raw"
+        get_response = requests.get(base_url, headers=headers, timeout=10)
+        get_response.raise_for_status()
+        return True, get_response.text
+
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            print(f"File '{path}' not found (404 Error).")
+            return False, None
+        else:
+            print(f"An HTTP error occurred: {e}")
+            return False, None
+    except requests.exceptions.ConnectionError as e:
+        print(f"A connection error occurred: {e}")
+        return False, None
+    except requests.exceptions.Timeout as e:
+        print(f"The request timed out: {e}")
+        return False, None
+    except requests.exceptions.RequestException as e:
+        print(f"An unexpected request error occurred: {e}")
+        return False, None
 
 def generate_site_inventory():
     headers = {
         "Accept": "application/vnd.github.v3+json", "Authorization": f"token {GITHUB_TOKEN}" }
 
     print(f"Fetching repositories for {GITHUB_OWNER}...")
-    response = requests.get(API_URL, headers=headers)
+    response = requests.get(API_REPOS, headers=headers)
     response.raise_for_status() # Raise an exception for HTTP errors (4xx or 5xx)
     repos = response.json()
 
     site_inventory = []
-
-    # Add the general pages home itself
-    site_inventory.append({
-        "name": "General Pages Home",
-        "url": f"https://{GITHUB_OWNER}.github.io/",
-        "description": "the main page"
-    })
-
     for repo in repos:
         # Filter for repositories that are likely GitHub Pages project sites.
         # You can customize this logic:
         # - `has_pages`: Checks if GitHub Pages is enabled for the repo.
         # - `!repo['archived']`: Excludes archived repositories.
         # - `repo['name'] != f"{GITHUB_OWNER}.github.io"`: Excludes the general pages repo itself.
-        if repo.get('has_pages') and not repo.get('archived') and repo['name'] != f"{GITHUB_OWNER}.github.io":
+        if repo.get('has_pages') and not repo.get('archived'):
+            if repo['name'] != f"{GITHUB_OWNER}.github.io":
+                name = "Main"
+                url = f"https://{GITHUB_OWNER}.github.io/"
+            else:
+                name = repo['name'].replace('-', ' ').title()
+                url = f"https://{GITHUB_OWNER}.github.io/{repo['name']}/"
+            got_pages, pages = check_file_exists_and_fetch(repo['name'], 'docs/_data/pages.txt', headers):
             site_inventory.append({
-                "name": repo['name'].replace('-', ' ').title(), # Example: "my-project" -> "My Project"
-                "url": f"https://{GITHUB_OWNER}.github.io/{repo['name']}/", # instead of the repo url# repo['html_url'],
-                "description": repo['description'] if repo['description'] else f"A project about {repo['name'].replace('-', ' ')}."
+                "name": name,
+                "url": url,
+                "description": repo['description'] if repo['description'] else f""
             })
 
     # Sort the inventory alphabetically by name (optional)
