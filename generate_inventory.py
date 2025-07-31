@@ -57,11 +57,10 @@ def generate_site_inventory():
     for repo in repos:
         if repo.get('has_pages') and not repo.get('archived'):
             if repo['name'] == f"{GITHUB_OWNER}.github.io":
-                name = "Main"
                 url = f"https://{GITHUB_OWNER}.github.io/"
             else:
-                name = repo['name'].replace('-', ' ').title()
                 url = f"https://{GITHUB_OWNER}.github.io/{repo['name']}/"
+            name = repo['name'].replace('-', ' ').title()
             got_pages, pages = check_file_exists_and_fetch(repo['name'], 'docs/_data/pages.txt', headers)
             if 'index' in pages: pages.remove('index')
             site_inventory.append({
@@ -70,9 +69,6 @@ def generate_site_inventory():
                 "description": repo['description'] if repo['description'] else f"",
                 "pages": pages
             })
-
-    # Sort the inventory alphabetically by name (optional)
-    site_inventory.sort(key=lambda x: x['name'])
 
     # Ensure the _data directory exists
     os.makedirs('_data', exist_ok=True)
