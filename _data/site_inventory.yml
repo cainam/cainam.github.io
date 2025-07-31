@@ -1,6 +1,6 @@
 - name: Cainam.Github.Io
   url: https://cainam.github.io/
-  description: ''
+  description: The entrypoint repository for the cainam repositories
   pages:
   - ''
 - name: Gentoo Image Builder
@@ -8,10 +8,10 @@
   description: Create minimalistic image from scratch and fully controlled
   pages:
   - ''
-- name: Krysyntyz
-  url: https://cainam.github.io/krysyntyz/
+- name: Home Cluster Deployment
+  url: https://cainam.github.io/home-cluster-deployment/
   description: Kubernetes cluster with oauth, keycloak, local repository management
     used for home.assistant
   pages:
-  - test
+  - helm-vs-kustomize
   - ''
