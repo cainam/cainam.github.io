@@ -1,3 +1,8 @@
+- name: Cainam.Github.Io
+  url: https://cainam.github.io/
+  description: ''
+  pages:
+  - ''
 - name: Gentoo Image Builder
   url: https://cainam.github.io/gentoo-image-builder/
   description: Create minimalistic image from scratch and fully controlled
@@ -9,9 +14,4 @@
     used for home.assistant
   pages:
   - test
-  - ''
-- name: Main
-  url: https://cainam.github.io/
-  description: ''
-  pages:
   - ''
