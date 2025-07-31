@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: db
+  name: longhorn-inspection
+spec:
+  containers:
+  - name: shell
+    image: local/base:20250526
+    command: [ "sh", "-c", "sleep 3600" ]
+    volumeMounts:
+    - mountPath: /data
+      name: data
+    - mountPath: /var/lib/postgresql/conf/pg_hba.conf
+      name: postgresql-config-pghba
+      subPath: pg_hba.conf
+    - mountPath: /var/lib/postgresql/conf/postgresql.conf
+      name: postgresql-config
+      subPath: postgresql.conf
+  volumes:
+  - configMap:
+      defaultMode: 420
+      items:
+      - key: postgresql.conf
+        path: postgresql.conf
+      name: postgresql-configuration
+    name: postgresql-config
+  - configMap:
+      defaultMode: 420
+      items:
+      - key: pg_hba.conf
+        path: pg_hba.conf
+      name: postgresql-configuration
+    name: postgresql-config-pghba
+  - name: data
+    persistentVolumeClaim:
+      claimName: data-postgresql-0
+  restartPolicy: Never

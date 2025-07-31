@@ -1,0 +1,24 @@
+load("@bazel_tools//tools/python:toolchain.bzl", "py_runtime_pair")
+
+py_runtime(
+    name = "system_python_runtime",
+    interpreter_path = "/usr/bin/python3",  # Or whatever your system Python is
+    python_version = "PY3",
+)
+
+py_runtime_pair(
+    name = "system_python_runtime_pair",
+    py3_runtime = ":system_python_runtime",
+)
+
+toolchain(
+    name = "system_python_toolchain",
+    toolchain = ":system_python_runtime_pair",
+    toolchain_type = "@bazel_tools//tools/python:toolchain_type",
+    target_compatible_with = [],
+)
+toolchain(
+    name = "noop_python_toolchain",
+    toolchain = ":system_python_runtime_pair",
+    toolchain_type = "@rules_python//python:toolchain_type",
+)

@@ -1,0 +1,4 @@
+
+PolicyName: xxx
+hosts:
+  - example.com

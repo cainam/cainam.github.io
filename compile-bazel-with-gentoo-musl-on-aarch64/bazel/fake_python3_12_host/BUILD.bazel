@@ -1,0 +1,23 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_runtime_pair", "py_runtime")
+#load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "toolchain")  # Optional depending on setup
+
+# Define the Python runtime (system Python)
+py_runtime(
+    name = "python_runtime",
+    interpreter_path = "/usr/bin/python3",  # Adjust if your system python is elsewhere
+    python_version = "PY3",
+)
+
+# Runtime pair needed by Bazel's Python toolchain resolution
+py_runtime_pair(
+    name = "python3_runtime_pair",
+    py3_runtime = ":python_runtime",
+)
+
+# Toolchain declaration — this is what Bazel resolves
+toolchain(
+    name = "python3_toolchain",
+    toolchain_type = "@rules_python//python:toolchain_type",
+    toolchain = ":python3_runtime_pair",
+    target_compatible_with = [],
+)
