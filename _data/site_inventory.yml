@@ -2,6 +2,7 @@
   url: https://cainam.github.io/
   description: The entrypoint repository for the cainam repositories
   pages:
+  - oauth2-sequence-with-curl
   - ''
 - name: Gentoo Image Builder
   url: https://cainam.github.io/gentoo-image-builder/
