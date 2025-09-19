@@ -3,6 +3,7 @@
   description: The entrypoint repository for the cainam repositories
   pages:
   - oauth2-sequence-with-curl
+  - compiling_envoy_proxy_on_musl_aarch64
   - ''
 - name: Gentoo Image Builder
   url: https://cainam.github.io/gentoo-image-builder/
