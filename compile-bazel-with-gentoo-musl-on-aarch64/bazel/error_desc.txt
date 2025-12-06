@@ -1,0 +1,382 @@
+I am trying to compile istio's envoy proxy 1.27 using bazel in a container with musl libc.
+I have to replace foreign_cc to use locally installed tools, because foreign_cc fetches incompatible glibc binaries.
+
+My replacement repo has this content:
+file: tools/foreign_cc/foreign_cc/BUILD.bazel
+# Content to be copied to @@envoy//bazel/foreign_cc/BUILD
+
+# 1. Load the cc_library function from your external stub repository
+#    (@@envoy_foreign_cc is the name of your local_repository defined in WORKSPACE)
+load("@envoy_foreign_cc//foreign_cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# --- liburing ---
+cc_library(
+    name = "liburing",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "liburing_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":liburing"],
+)
+
+# --- libevent / event ---
+# Envoy's internal BUILD files often reference 'event' directly.
+cc_library(
+    name = "event",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "event_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":event"],
+)
+
+# --- boringssl ---
+cc_library(
+    name = "boringssl",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "boringssl_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":boringssl"],
+)
+
+# --- protobuf ---
+cc_library(
+    name = "protobuf",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "protobuf_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":protobuf"],
+)
+
+# --- zlib ---
+cc_library(
+    name = "zlib",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "zlib_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":zlib"],
+)
+
+# --- c-ares / ares ---
+# Envoy typically uses the name 'ares' for the c-ares target.
+cc_library(
+    name = "ares",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "ares_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":ares"],
+)
+
+# --- re2 ---
+cc_library(
+    name = "re2",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "re2_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":re2"],
+)
+
+# --- gflags ---
+cc_library(
+    name = "gflags",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "gflags_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":gflags"],
+)
+
+# --- abseil ---
+cc_library(
+    name = "abseil",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "abseil_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":abseil"],
+)
+
+# --- libprotobuf-mutator ---
+cc_library(
+    name = "libprotobuf_mutator",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "libprotobuf_mutator_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":libprotobuf_mutator"],
+)
+
+# --- jemalloc ---
+cc_library(
+    name = "jemalloc",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "jemalloc_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":jemalloc"],
+)
+
+# --- nghttp2 / nghttp ---
+cc_library(
+    name = "nghttp2",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "nghttp2_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":nghttp2"],
+)
+
+cc_library(
+    name = "luajit",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "luajit_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":luajit"],
+)
+
+# ... Inside your stub BUILD file ...
+
+# --- zstd ---
+cc_library(
+    name = "zstd",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "zstd_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":zstd"],
+)
+
+# --- libsxg (Signed Exchanges) ---
+cc_library(
+    name = "libsxg",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "libsxg_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":libsxg"],
+)
+
+# --- maxmind (GeoIP Lookups) ---
+cc_library(
+    name = "maxmind",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "maxmind_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":maxmind"],
+)
+
+# --- wamr (WebAssembly Micro Runtime) ---
+# Required for Wasm extensions.
+cc_library(
+    name = "wamr",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "wamr_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":wamr"],
+)
+
+# --- librdkafka (If enabled, e.g., via --define kafka=enabled) ---
+cc_library(
+    name = "librdkafka",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "librdkafka_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":librdkafka"],
+)
+
+# --- gperftools / tcmalloc (Often used via foreign_cc in older versions) ---
+cc_library(
+    name = "gperftools",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "gperftools_build",
+    srcs = [],
+    hdrs = [],
+    deps = [],
+)
+
+cc_library(
+    name = "gperftools_build_linux",
+    srcs = [],
+    hdrs = [],
+    deps = [":gperftools_build"],
+)
+
+file: tools/foreign_cc/foreign_cc/cmake.bzl
+def cmake(name, **kwargs):
+    print("Using local cmake stub for", name)
+    native.genrule(
+        name = name,
+        outs = ["{}.stamp".format(name)],
+        # Just echo something to make Bazel happy; no $(location) on absolute paths
+        cmd = "echo Using local cmake stub for {} > $@".format(name),
+    )
+
+
+file: tools/foreign_cc/foreign_cc/make.bzl
+# tools/cmake/foreign_cc/make.bzl
+
+def make(*args, **kwargs):
+    # dummy placeholder for Bazel loading
+    print("Stub make called with", kwargs.get("name", "<unknown>"))
+
+__all__ = ["make"]
+
+
+file: tools/foreign_cc/foreign_cc/configure.bzl
+# Stub configure.bzl for local foreign_cc override
+
+def configure(*args, **kwargs):
+    print("Stub configure called with", kwargs.get("name", "<unknown>"))
+
+def configure_make(*args, **kwargs):
+    print("Stub configure_make called with", kwargs.get("name", "<unknown>"))
+
+__all__ = ["configure", "configure_make"]
+
+
+file: tools/foreign_cc/foreign_cc/defs.bzl
+# tools/foreign_cc/foreign_cc/defs.bzl
+def cc_library(*args, **kwargs):
+    """Replacement for foreign_cc rules that defines an empty native cc_library."""
+    name = kwargs.get("name", "<unknown>")
+    # Call the native cc_library function to define a real Bazel target
+    include_paths = ["/opt/libevent/include","/usr/local/include"]
+    native.cc_library(
+        name = name,
+        srcs = [],
+        hdrs = [],
+        deps = [],
+        # You may need to add include directories if your locally installed
+        # libraries aren't found by default, e.g., if installed to /usr/local
+        # includes = ["/usr/local/include"],
+        # If linking is needed, you may need to specify linkopts.
+        # linkopts = ["-l" + name], # Only if you have a locally installed .so/.a
+        includes = include_paths, 
+	copts = ["-isystem", "/usr/local/include"] 
+    )
+    print("Stub cc_library called and defined native target:", name)
+
+# ... keep make and cmake definitions as stubs if they are used to call cc_library internally ...
+def make(*args, **kwargs):
+    print("Stub make called with", kwargs.get("name", "<unknown>"))
+    cc_library(*args, **kwargs) # Call cc_library if 'make' is a wrapper
+
+def cmake(*args, **kwargs):
+    print("Stub cmake called with", kwargs.get("name", "<unknown>"))
+    cc_library(*args, **kwargs) # Call cc_library if 'cmake' is a wrapper
+
+__all__ = ["cc_library", "make", "cmake"]
+
+file: tools/foreign_cc/foreign_cc/repositories.bzl
+def rules_foreign_cc_dependencies():
+    print("Using local foreign_cc  override — skipping remote rules_foreign_cc setup")
+
+
+file: tools/foreign_cc/WORKSPACE
+

@@ -1,0 +1,52 @@
+
+- debug:
+    msg: "gateway:{{ gateway.key }}\ngateways:\n{{ gateways | to_nice_yaml }}"
+
+- name: set title and domain
+  set_fact:
+    gw_title: "post_gateway - gateway:{{ gateway.key }} namespace:{{ namespace.key }} "
+    domain: "{{ gateways[gateway.key].domain }}"
+
+- name: set route variable
+  set_fact:
+    route: "{{ net.routes | selectattr('domain', 'equalto', domain) | first }}"
+
+- name: set app fact
+  set_fact:
+    gw_hosts: "['{{ domain }}{%- if route and route.external_port is defined -%}','{{ net.domain_external }}{%- endif -%}']"  # build the hosts array to be used by the gateway and the virtual service
+
+#- name: "{{ gw_title }} - configure external IP of load-balancer"
+#  shell: |
+#    kubectl patch svc "{{ gateway.key }}" --namespace "{{ namespace.key }}" --patch '{"spec": { "externalIPs": ["{{ route.endpointIP }}"] }}'
+
+#- name: "{{ gw_title }} - tls certificates for ingress gateway"
+#  shell: |
+#    kubectl get secret --ignore-not-found=false -n "{{ namespace.key }}" "{{ gateway.key }}" 2>/dev/null >> /dev/null || kubectl create -n "{{ namespace.key }}" secret tls "{{ gateway.key }}"  --key="{{ cert_path }}/{{ base_domain }}.key" --cert="{{ cert_path }}/{{ base_domain }}.crt"
+
+- name: "{{ gw_title }} - configure gateway"
+  shell: |
+    cmd=replace; kubectl get gw -n {{ namespace.key }} {{ gateway.key }} 2>> /dev/null >> /dev/null || cmd=apply
+    echo "cmd: ${cmd}" > /tmp/cmd
+    echo -e "apiVersion: networking.istio.io/v1beta1\nkind: Gateway\nmetadata:\n  name: {{ gateway.key }}\n  namespace: {{ namespace.key }}\nspec:\n  selector:\n    istio: {{ gateway.key }}\n  servers:\n  - hosts: {{ gw_hosts }}\n    port:\n      name: https\n      number: 443\n      protocol: HTTPS\n    tls:\n      credentialName: {{ gateway.key }}\n      mode: SIMPLE" | kubectl ${cmd} -f -
+
+- name: "{{ gw_title }} - ensure VirtualService exists"
+  shell: |
+    exists=1; kubectl get vs --ignore-not-found=false -n {{ namespace.key }} {{ gateway.key }} 2>> /dev/null >> /dev/null || exists=0
+    if [ $exists -eq 0 ]; then
+      echo -e 'apiVersion: networking.istio.io/v1beta1\nkind: VirtualService\nmetadata:\n  name: {{ gateway.key }}\n  namespace: {{ namespace.key }}\nspec:\n  gateways:\n  - {{ namespace.key }}/{{ gateway.key }}\n  hosts: {{ gw_hosts }}\n  http:\n    - directResponse:\n        status: 592\n      match:\n      - uri:\n          prefix: /dummy\n      name: dummy' > /tmp/a
+      kubectl apply -f /tmp/a
+    fi
+  register: vs_setup
+
+- name: "{{ gw_title }} - output of ensure VirtualService exists"
+  debug:
+    msg: "result: {{ vs_setup.rc }} out: {{ vs_setup.stdout }}"  # for: {{ vs_setup.item.key }}"
+#    loop: "{{ vs_setup.results  }}"
+  when: "'debug' in ansible_run_tags"
+
+- name: "{{ gw_title }} - debug - output of before"
+  debug:
+    msg: "result: {{ vs_basic.rc }} out: {{ vs_basic.stdout }}" # for: {{ item.item.key }}"
+  when: "'debug' in ansible_run_tags"
+
+

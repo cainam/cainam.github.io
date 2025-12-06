@@ -10,40 +10,66 @@ this compile works without gdb-index AND -nostdlib removal but I didn't manage t
 I also didn't manage to get bazel reconfigured for using gcc so I gave up
 
 
-
-
-tar xfz zulu21.44.17-ca-jdk21.0.8-linux_musl_aarch64.tar.gz 
-export  JAVA_HOME=/root/zulu21.44.17-ca-jdk21.0.8-linux_musl_aarch64
-export PATH=$JAVA_HOME/bin/:$PATH 
-
-cd bazel
-unzip ../bazel-8.3.1-dist.zip 
-emerge app-arch/zip
-sed -i '/nano/d' /etc/portage/profile/package.provided | grep nano
-emerge --usepkg app-editors/nano
-# bazel 8 apply https://gitlab.alpinelinux.org/alpine/aports/-/blob/e49daeab5c9554e8cb7ca23547037d6659d7be43/testing/bazel8/0001-off64t-fix.patch
-# bazel 7 apply https://gitlab.alpinelinux.org/alpine/aports/-/blob/e49daeab5c9554e8cb7ca23547037d6659d7be43/testing/bazel7/0001-off64t-fix.patch but remove abuild subdirectory
-patch -p1 < 0001-off64t-fix.patch
-
-env EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk" bash ./compile.sh
+EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk" bash ./compile.sh
+# env EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk" bash ./compile.sh
 cp -dp output/bazel $JAVA_HOME/bin
-emerge -v llvm-core/clang llvm-runtimes/libcxx #llvm-runtimes/libcxxabi
+MAKEOPTS="-j3" emerge -v llvm-core/clang llvm-runtimes/libcxx #llvm-runtimes/libcxxabi
 
-git clone https://github.com/istio/proxy.git
-cd proxy
-git checkout release-1.26
+git clone --depth 1 --single-branch -b release-1.27 https://github.com/istio/proxy.git; cd proxy
 echo "build --define tcmalloc=gperftools # in .bazelrc" >> .bazelrc
+sed -i '/PATH/d' .bazelrc
 
-export JAVA_HOME=/root/zulu21.44.17-ca-jdk21.0.8-linux_musl_aarch64
+export JAVA_HOME=/opt/zulu
 PATH=/usr/lib/llvm/20/bin/:${JAVA_HOME}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 export CC=/usr/lib/llvm/20/bin/clang
-sed -i '/PATH/d' .bazelrc
-# + files in bazel directory!!!
+sed -e 's/%:libstdc++.a/stdc++/' -e 's/%:libc++.a/c++/g' -e 's/%:libc++abi.a/c++abi/g' -i envoy.bazelrc
+
+## locally install libevent libevent-2.1.17-alpha (not available in Gentoo)
+#curl -L -O https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
+#tar xfz libevent-2.1.12-stable.tar.gz 
+#cd libevent-2.1.12-stable
+#./configure --prefix=/usr/local
+#make && make install
+curl -OL https://github.com/libevent/libevent/releases/download/release-2.2.1-alpha/libevent-2.2.1-alpha-dev.tar.gz
+tar xfz libevent-2.2.1-alpha-dev.tar.gz
+cd libevent-2.2.1-alpha-dev
+./configure --prefix=/usr/local && make && make install
+
+curl -LO https://github.com/axboe/liburing/archive/refs/tags/liburing-2.12.tar.gz
+tar xfz liburing-2.12.tar.gz
+cd liburing-liburing-2.12/ && --prefix=/usr/local && make && make install
+
+#   26  curl -O -L https://www.lua.org/ftp/lua-5.2.4.tar.gz
+#   27  tar xfz lua-5.2.4.tar.gz 
+#   28  cd lua-5.2.4
+#   29  make linux 
+#   30  make linux install
+
+  107  git clone --single-branch --branch v2.1.ROLLING  --filter=blob:none https://luajit.org/git/luajit.git
+  108  cd luajit/
+  112  make && make install
+   for a in *; do ln -s /usr/local/include/luajit-2.1/$a ../$a; done
 
 
-# .bazelrc contains:
-build:linux --action_env=PATH=/usr/lib/llvm/bin:/usr/local/bin:/bin:/usr/bin
-=> try to comment this line
+
+   64  curl -OL https://github.com/gperftools/gperftools/releases/download/gperftools-2.17.2/gperftools-2.17.2.tar.gz
+   65  tar xfz gperftools-2.17.2.tar.gz
+   66  cd gperftools-2.17.2
+   67  ls -l
+   68  ./configure && make && make install
+
+# see if -copt could be used to run build with less or no optimizations
+bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu  --copt="-I /usr/local/include" --copt=-Wno-sign-compare --copt=-Wno-error=deprecated-literal-operator --copt=-Wno-error=sign-compare -- //:envoy
+
+
+ bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu --linkopt="-lc++" --linkopt="-lc++abi" --linkopt="-Wl,--exclude-libs,libc++.a" --linkopt="-Wl,--exclude-libs,libc++abi.a"  -- //:envoy
+
+
+
+
+
+
+
 
 # bazel build --verbose_failures --strip=always --config=sizeopt --noenable_bzlmod -- //:envoy 
 time bazel build --verbose_failures --strip=always --config=sizeopt --noenable_bzlmod  --python_path=/usr/sbin/python3 --host_force_python=PY3 --extra_toolchains=//tools/python:noop_python_toolchain --extra_toolchains=//tools/python:system_python_toolchain  --toolchain_resolution_debug=1 --sandbox_debug --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk   -- //:envoy 
@@ -51,4 +77,53 @@ time bazel build --verbose_failures --strip=always --config=sizeopt --noenable_b
 # bazel debug: 
 bazel query --output=build @python3_12_host//...
  bazel query --output=build @base_pip3_jinja2//...
+
+# bazel sample python project
+mkdir -p bazel-python-demo
+cd bazel-python-demo
+
+mkdir -p app
+touch WORKSPACE.bazel
+touch app/BUILD
+touch app/main.py
+
+
+app/main.py
+def main():
+    print("Hello from Bazel + Python!")
+
+if __name__ == "__main__":
+    main()
+
+app/BUILD
+py_binary(
+    name = "hello",
+    srcs = ["main.py"],
+)
+
+# cat > WORKSPACE.bazel <<EOF
+> load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Load Bazel's Python rules
+http_archive(
+    name = "rules_python",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.31.0/rules_python-0.31.0.tar.gz",
+    sha256 = "f4f0c1d0e520ab147ff8b3b8d37a2406240b15b20e799c004e50d93ea5d91f3c",
+)
+
+load("@rules_python//python:repositories.bzl", "python_register_toolchains", "py_repositories")
+
+py_repositories()
+
+# Register your local Python installation
+python_register_toolchains(
+    name = "local_python",
+    python_version = "3.12",  # <-- adjust to your system version
+)
+EOF
+
+
+
+
+
 

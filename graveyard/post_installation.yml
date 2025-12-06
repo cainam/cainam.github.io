@@ -1,0 +1,18 @@
+- name: set app fact
+  set_fact:
+    post_inst: "post_installation namespace: {{ namespace.key}} - "
+
+#- name: "{{ post_inst }}implement gateways"
+#  include_tasks: post_gateway.yml
+#  loop: "{{ namespace.value | dict2items }}"
+#  when: gateway.key in gateways
+#  loop_control:
+#    loop_var: gateway
+#
+#- name: "{{ post_inst }}apply VirtualService application configurations"
+#  include_tasks: post_virtualservice.yml
+#  loop: "{{ gateways | dict2items}}"
+#  loop_control:
+#    loop_var: gateway
+#  when: (gateway.value.namespace| default(default_gateway_namespace)) == namespace.key
+
