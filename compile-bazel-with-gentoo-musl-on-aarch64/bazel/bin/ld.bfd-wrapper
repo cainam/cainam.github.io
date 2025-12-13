@@ -2,7 +2,7 @@
 # Wrapper for ld.bfd to remove --gdb-index before invoking the real linker
 
 # Path to the real ld.bfd
-REAL_LD=/usr/sbin/ld.bfd.org
+REAL_LD=$0.org
 
 # Filter out --gdb-index from the arguments
 ARGS=()
@@ -11,12 +11,14 @@ for arg in "$@"; do
         ARGS+=("$arg")
     fi
 done
+echo "ld called: $0" >> /tmp/ld.calls
 echo "args: ${ARGS[@]}" > /tmp/ld.args
 
 f=$(echo "${ARGS[@]}" | sed -e 's/@//g')
-sed -i -e 's/"--no-gdb-index"/-lcares -lzstd -lnghttp2 -levent -levent_core -levent_extra -levent_openssl -levent_pthreads -lluajit-5.1 -lprofiler -ltcmalloc -ltcmalloc_and_profiler -ltcmalloc_debug -ltcmalloc_minimal -ltcmalloc_minimal_debug -luring-ffi -luring -lz/g' -e 's/"--gdb-index"//g' ${f}
-cp $f /tmp/ld.file
+if [ -f "${f}" ]; then
+  sed -i -e 's/"--end-lib"//g' -e  's/"--start-lib"//g' -e 's/"--no-gdb-index"/-lcares -lzstd -lnghttp2 -levent -levent_core -levent_extra -levent_openssl -levent_pthreads -lluajit-5.1 -lprofiler -ltcmalloc -ltcmalloc_and_profiler -ltcmalloc_debug -ltcmalloc_minimal -ltcmalloc_minimal_debug -luring-ffi -luring -lz/g' -e 's/"--gdb-index"//g' -e 's/--gdb-index//g' -e 's/--no-gdb-index/-z notext/g' ${f}
+  cp $f /tmp/ld.file
+fi
 
 # Call the real linker with the filtered arguments
-exec "$REAL_LD" "${ARGS[@]}"
-
+exec "$REAL_LD" $(echo "${ARGS[@]}" | sed -e 's/--gdb-index//g' -e 's/--no-gdb-index//g' )

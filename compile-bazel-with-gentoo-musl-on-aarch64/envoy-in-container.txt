@@ -1,28 +1,13 @@
-The following is a sequence I was trying to get bazel compiled on aarch64 with musl:
-- I managed to get bazel using local python installation
-- I managed to get bazel using local JDK
-but I failed for the C-Compiler.
-
-this fails:
-/usr/lib/llvm/20/bin/clang-20 -U_FORTIFY_SOURCE -fstack-protector -Wall -Wthread-safety -Wself-assign -Wunused-but-set-parameter -Wno-free-nonheap-object -fcolor-diagnostics -fno-omit-frame-pointer -g0 -O2 -D_FORTIFY_SOURCE=1 -DNDEBUG -ffunction-sections -fdata-sections -no-canonical-prefixes -Wno-builtin-macro-redefined -D__DATE__=redacted -D__TIMESTAMP__=redacted -D__TIME__=redacted -DABSL_MIN_LOG_LEVEL=4 -fdebug-types-section -fPIC -Wno-deprecated-declarations -Wno-error=deprecated-enum-enum-conversion -DNULL_PLUGIN -Os -Wno-error -fexceptions   -Wl,-S -fuse-ld=/usr/lib/llvm/20/bin/ld.lld -B/usr/lib/llvm/20/bin -Wl,-no-as-needed -Wl,-z,relro,-z,now -lm -pthread -Wl,--gc-sections -l:libstdc++.a -fuse-ld=lld -nostdlib -lpthread a.c  -Wl,--gdb-index -v
-
-this compile works without gdb-index AND -nostdlib removal but I didn't manage to get bazel configured changing the options
-I also didn't manage to get bazel reconfigured for using gcc so I gave up
-
-
-EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk" bash ./compile.sh
-# env EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk" bash ./compile.sh
-cp -dp output/bazel $JAVA_HOME/bin
-MAKEOPTS="-j3" emerge -v llvm-core/clang llvm-runtimes/libcxx #llvm-runtimes/libcxxabi
 
 git clone --depth 1 --single-branch -b release-1.27 https://github.com/istio/proxy.git; cd proxy
 echo "build --define tcmalloc=gperftools # in .bazelrc" >> .bazelrc
 sed -i '/PATH/d' .bazelrc
 
 export JAVA_HOME=/opt/zulu
-PATH=/usr/lib/llvm/20/bin/:${JAVA_HOME}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH=/usr/lib/llvm/20/bin/:${JAVA_HOME}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 export CC=/usr/lib/llvm/20/bin/clang
 sed -e 's/%:libstdc++.a/stdc++/' -e 's/%:libc++.a/c++/g' -e 's/%:libc++abi.a/c++abi/g' -i envoy.bazelrc
+emerge llvm-core/lld
 
 ## locally install libevent libevent-2.1.17-alpha (not available in Gentoo)
 #curl -L -O https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
@@ -58,15 +43,19 @@ cd liburing-liburing-2.12/ && --prefix=/usr/local && make && make install
    67  ls -l
    68  ./configure && make && make install
 
+### all before already added to vars/images
+
+
+ bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu  --copt="-I /usr/local/include" --copt=-Wno-sign-compare --copt=-Wno-error=deprecated-literal-operator --copt=-Wno-error=sign-compare --copt=-Wno-error=nullability-completeness --copt=-Wno-error --linkopt=-Wl,--no-gdb-index --host_linkopt=-Wl,--no-gdb-index --host_linkopt=-fuse-ld=lld --linkopt=-fuse-ld=bfd --features=-generate_gdb_index --host_features=-generate_gdb_index    -- //:envoy 
+
+
+
+
 # see if -copt could be used to run build with less or no optimizations
 bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu  --copt="-I /usr/local/include" --copt=-Wno-sign-compare --copt=-Wno-error=deprecated-literal-operator --copt=-Wno-error=sign-compare -- //:envoy
 
 
  bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu --linkopt="-lc++" --linkopt="-lc++abi" --linkopt="-Wl,--exclude-libs,libc++.a" --linkopt="-Wl,--exclude-libs,libc++abi.a"  -- //:envoy
-
-
-
-
 
 
 
