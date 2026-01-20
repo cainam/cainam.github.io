@@ -44,9 +44,7 @@ cd liburing-liburing-2.12/ && --prefix=/usr/local && make && make install
    68  ./configure && make && make install
 
 ### all before already added to vars/images
-
-
- bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu  --copt="-I /usr/local/include" --copt=-Wno-sign-compare --copt=-Wno-error=deprecated-literal-operator --copt=-Wno-error=sign-compare --copt=-Wno-error=nullability-completeness --copt=-Wno-error --linkopt=-Wl,--no-gdb-index --host_linkopt=-Wl,--no-gdb-index --host_linkopt=-fuse-ld=lld --linkopt=-fuse-ld=bfd --features=-generate_gdb_index --host_features=-generate_gdb_index    -- //:envoy 
+ bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu  --copt="-I /usr/local/include" --copt=-Wno-sign-compare --copt=-Wno-error=deprecated-literal-operator --copt=-Wno-error=sign-compare --copt=-Wno-error=nullability-completeness --copt=-Wno-error --linkopt=-Wl,--no-gdb-index --host_linkopt=-Wl,--no-gdb-index --host_linkopt=-fuse-ld=lld --linkopt=-fuse-ld=bfd --features=-generate_gdb_index --host_features=-generate_gdb_index    -- //:envoy
 
 
 
