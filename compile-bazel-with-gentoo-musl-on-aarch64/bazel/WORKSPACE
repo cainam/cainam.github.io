@@ -93,10 +93,16 @@ http_archive(
     #    "cp $(location @envoy_foreign_cc//foreign_cc:BUILD.bazel) bazel/foreign_cc/BUILD",
 #	"cp /proxy/tools/foreign_cc/foreign_cc/BUILD.bazel bazel/foreign_cc/BUILD",
 #    ],
-    #build_file = "tools/foreign_cc/foreign_cc/BUILD.bazel",
-    repo_mapping = {
-        "@envoy_foreign_cc": "@envoy_foreign_cc",
-    },
+    patch_cmds = [
+        # We must remove the existing directory in the archive so
+        # our build_file can take over the 'bazel/foreign_cc' package name.
+        "rm -rf bazel/foreign_cc",
+        "mkdir -p bazel/foreign_cc",
+    ],
+    build_file = "tools/foreign_cc/foreign_cc/BUILD.bazel",
+    #repo_mapping = {
+    #    "@envoy_foreign_cc": "@envoy_foreign_cc",
+    #},
 )
 
 load("@envoy//bazel:api_binding.bzl", "envoy_api_binding")
