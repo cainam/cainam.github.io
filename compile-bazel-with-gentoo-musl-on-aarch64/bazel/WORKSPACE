@@ -99,7 +99,8 @@ http_archive(
         "rm -rf bazel/foreign_cc",
         "mkdir -p bazel/foreign_cc",
     ],
-    build_file = "tools/foreign_cc/foreign_cc/BUILD.bazel",
+    #build_file = "tools/foreign_cc/foreign_cc/BUILD.bazel",
+    build_file = "//tools/foreign_cc/foreign_cc:BUILD.bazel",
     #repo_mapping = {
     #    "@envoy_foreign_cc": "@envoy_foreign_cc",
     #},
