@@ -9,6 +9,7 @@ package(default_visibility = ["//visibility:public"])
 # --- liburing ---
 cc_library(
     name = "liburing",
+    static_library = "/usr/local/lib/liburing.a",
     srcs = [],
     hdrs = [],
     deps = [],
