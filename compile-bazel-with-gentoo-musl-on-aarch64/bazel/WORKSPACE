@@ -98,13 +98,8 @@ http_archive(
         # our build_file can take over the 'bazel/foreign_cc' package name.
         "rm -rf bazel/foreign_cc",
         "mkdir -p bazel/foreign_cc",
+	"cp /proxy/tools/foreign_cc/foreign_cc/BUILD.bazel bazel/foreign_cc/BUILD",
     ],
-    #build_file = "tools/foreign_cc/foreign_cc/BUILD.bazel",
-    #build_file = "//tools/foreign_cc/foreign_cc:BUILD.bazel",
-        build_file = "@envoy_foreign_cc//foreign_cc:BUILD.bazel",
-    #repo_mapping = {
-    #    "@envoy_foreign_cc": "@envoy_foreign_cc",
-    #},
 )
 
 load("@envoy//bazel:api_binding.bzl", "envoy_api_binding")
