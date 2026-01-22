@@ -12,14 +12,21 @@ cc_library(
     srcs = [],
     hdrs = [],
     deps = [],
+        linkstatic = True,
 )
 
-cc_library(
+alias(
     name = "liburing_linux",
-    srcs = [],
-    hdrs = [],
-    deps = [":liburing"],
+    actual = ":liburing",
+    visibility = ["//visibility:public"],
 )
+
+#cc_library(
+#    name = "liburing_linux",
+#    srcs = [],
+#    hdrs = [],
+#    deps = [":liburing"],
+#)
 
 # --- libevent / event ---
 # Envoy's internal BUILD files often reference 'event' directly.
