@@ -1,0 +1,31 @@
+
+register_toolchains("//tools/python:system_python_toolchain")
+
+local_repository(
+    name = "python3_12_host",
+    path = "fake_python3_12_host",
+)
+register_toolchains("@python3_12_host//:python3_toolchain")
+
+local_repository(
+    name = "rules_foreign_cc",
+    path = "tools/foreign_cc",
+)
+
+# --- Also tell Envoy to use your local stub foreign_cc repo
+local_repository(
+    name = "envoy_foreign_cc",
+    path = "tools/foreign_cc",  # same stub, shared by both
+)
+
+
+local_repository(
+    name = "local_jdk",
+    path = "tools/jdk",
+)
+
+register_toolchains(
+    "@local_jdk//:bootstrap_runtime_toolchain_definition",
+    "@local_jdk//:runtime_toolchain_definition",
+)
+

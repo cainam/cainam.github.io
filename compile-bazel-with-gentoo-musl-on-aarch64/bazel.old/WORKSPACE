@@ -39,15 +39,6 @@ local_repository(
 )
 
 
-# --- rules_foreign_cc (needed for CMake toolchains) ---
-#http_archive(
-#    name = "rules_foreign_cc",
-#    sha256 = "e14a159c452a68a97a7c59fa458033cc91edb8224516295b047a95555140af5f",
-#    strip_prefix = "rules_foreign_cc-0.4.0",
-#    urls = ["https://github.com/bazelbuild/rules_foreign_cc/archive/refs/tags/0.4.0.tar.gz"],
-#)
-# Force Bazel to use our local system CMake instead of downloading one.
-
 local_repository(
     name = "local_jdk",
     path = "tools/jdk",
@@ -57,18 +48,6 @@ register_toolchains(
     "@local_jdk//:bootstrap_runtime_toolchain_definition",
     "@local_jdk//:runtime_toolchain_definition",
 )
-
-#http_archive(
-#    name = "liberica_jdk17_musl",
-#    urls = ["https://download.bell-sw.com/java/17.0.16+12/bellsoft-jdk17.0.16+12-linux-aarch64-musl.tar.gz"],
-#    strip_prefix = "bellsoft-jdk17.0.16+12-linux-aarch64-musl",
-#    sha256 = "1c537387f991de0be6383e2b64cb53f5bdf97c19",
-#)
-#load("//tools/jdk:liberica_toolchain.bzl", "liberica_toolchain")
-
-# Register the toolchain here:
-#register_toolchains("//tools/jdk:liberica_toolchain")
-
 
 # 1. Determine SHA256 `wget https://github.com/envoyproxy/envoy/archive/$COMMIT.tar.gz && sha256sum $COMMIT.tar.gz`
 # 2. Update .bazelversion, envoy.bazelrc and .bazelrc if needed.
@@ -88,11 +67,6 @@ http_archive(
     sha256 = ENVOY_SHA256,
     strip_prefix = ENVOY_REPO + "-" + ENVOY_SHA,
     url = "https://github.com/" + ENVOY_ORG + "/" + ENVOY_REPO + "/archive/" + ENVOY_SHA + ".tar.gz",
-#    patch_cmds = [
-        # Copy the contents of your stub BUILD file into the location the @envoy repo expects the targets.
-    #    "cp $(location @envoy_foreign_cc//foreign_cc:BUILD.bazel) bazel/foreign_cc/BUILD",
-#	"cp /proxy/tools/foreign_cc/foreign_cc/BUILD.bazel bazel/foreign_cc/BUILD",
-#    ],
     patch_cmds = [
         # We must remove the existing directory in the archive so
         # our build_file can take over the 'bazel/foreign_cc' package name.
