@@ -3,5 +3,6 @@
         # our build_file can take over the 'bazel/foreign_cc' package name.
         "rm -rf bazel/foreign_cc",
         "mkdir -p bazel/foreign_cc",
+        "touch bazel/foreign_cc/cel-cpp.patch",
         "cp /proxy/tools/foreign_cc/foreign_cc/BUILD.bazel bazel/foreign_cc/BUILD",
     ],
