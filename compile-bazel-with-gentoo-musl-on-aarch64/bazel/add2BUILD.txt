@@ -1,0 +1,20 @@
+# Tiny main wrapper providing main() and version symbols
+cc_library(
+    name = "envoy_main_cc",
+    srcs = ["main.cc"],  # create this file in the same directory
+    hdrs = [],
+    deps = [
+        "@envoy//source/exe:envoy_main_common_with_core_extensions_lib",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Minimal envoy binary
+envoy_cc_binary(
+    name = "envoy",
+    repository = "@envoy",
+    deps = [
+        ":envoy_main_cc",
+    ] + ISTIO_EXTENSIONS,
+)
+
