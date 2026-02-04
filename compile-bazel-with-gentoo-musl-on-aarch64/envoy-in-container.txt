@@ -43,27 +43,13 @@ cd liburing-liburing-2.12/ && --prefix=/usr/local && make && make install
    67  ls -l
    68  ./configure && make && make install
 
-### all before already added to vars/images
- bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu  --copt="-I /usr/local/include" --copt=-Wno-sign-compare --copt=-Wno-error=deprecated-literal-operator --copt=-Wno-error=sign-compare --copt=-Wno-error=nullability-completeness --copt=-Wno-error --linkopt=-Wl,--no-gdb-index --host_linkopt=-Wl,--no-gdb-index --host_linkopt=-fuse-ld=lld --linkopt=-fuse-ld=bfd --features=-generate_gdb_index --host_features=-generate_gdb_index    -- //:envoy
-
-
-
-
-# see if -copt could be used to run build with less or no optimizations
-bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu  --copt="-I /usr/local/include" --copt=-Wno-sign-compare --copt=-Wno-error=deprecated-literal-operator --copt=-Wno-error=sign-compare -- //:envoy
-
-
- bazel build --python_path=/usr/bin/python3  --verbose_failures --strip=always --config=sizeopt --toolchain_resolution_debug=1 --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk --action_env=PATH=/opt/zulu/bin:$PATH   --action_env=JAVA_HOME=/opt/zulu --linkopt="-lc++" --linkopt="-lc++abi" --linkopt="-Wl,--exclude-libs,libc++.a" --linkopt="-Wl,--exclude-libs,libc++abi.a"  -- //:envoy
-
-
-
-
-# bazel build --verbose_failures --strip=always --config=sizeopt --noenable_bzlmod -- //:envoy 
-time bazel build --verbose_failures --strip=always --config=sizeopt --noenable_bzlmod  --python_path=/usr/sbin/python3 --host_force_python=PY3 --extra_toolchains=//tools/python:noop_python_toolchain --extra_toolchains=//tools/python:system_python_toolchain  --toolchain_resolution_debug=1 --sandbox_debug --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk   -- //:envoy 
 
 # bazel debug: 
 bazel query --output=build @python3_12_host//...
  bazel query --output=build @base_pip3_jinja2//...
+
+# cquery is better as it consider overrides:
+bazel  --output_user_root=$PWD/../cache   cquery 'deps(//:envoy)'
 
 # bazel sample python project
 mkdir -p bazel-python-demo
