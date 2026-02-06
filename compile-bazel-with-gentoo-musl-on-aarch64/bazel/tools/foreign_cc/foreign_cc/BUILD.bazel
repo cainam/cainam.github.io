@@ -7,13 +7,18 @@ load("@envoy_foreign_cc//foreign_cc:defs.bzl", "cc_library")
 package(default_visibility = ["//visibility:public"])
 
 # --- liburing ---
-cc_library(
+#cc_library(
+#    name = "liburing",
+#    static_library = "/usr/local/lib/liburing.a",
+#    srcs = [],
+#    hdrs = [],
+#    deps = [],
+#        linkstatic = True,
+#)
+cc_import(
     name = "liburing",
     static_library = "/usr/local/lib/liburing.a",
-    srcs = [],
-    hdrs = [],
-    deps = [],
-        linkstatic = True,
+    visibility = ["//visibility:public"],
 )
 
 alias(
