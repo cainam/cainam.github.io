@@ -17,7 +17,8 @@ echo "args: ${ARGS[@]}" > /tmp/ld.args
 f=$(echo "${ARGS[@]}" | sed -e 's/@//g')
 if [ -f "${f}" ]; then
   #sed -i -e 's/"--end-lib"//g' -e  's/"--start-lib"//g' -e 's/"--no-gdb-index"/-lcares -lzstd -lnghttp2 -levent -levent_core -levent_extra -levent_openssl -levent_pthreads -lluajit-5.1 -lprofiler -ltcmalloc -ltcmalloc_and_profiler -ltcmalloc_debug -ltcmalloc_minimal -ltcmalloc_minimal_debug -luring-ffi -luring -lz/g' -e 's/"--gdb-index"//g' -e 's/--gdb-index//g' -e 's/--no-gdb-index/-z notext/g' ${f}
-  sed -i -e 's/"--end-lib"//g' -e  's/"--start-lib"//g' -e 's/"--no-gdb-index"/-lcares -lzstd -lnghttp2 -levent -levent_core -levent_extra -levent_openssl -levent_pthreads -lluajit-5.1 -luring-ffi -luring -lz/g' -e 's/"--gdb-index"//g' -e 's/--gdb-index//g' -e 's/--no-gdb-index/-z notext/g' ${f}
+  #sed -i -e 's/"--end-lib"//g' -e  's/"--start-lib"//g' -e 's/"--no-gdb-index"/-lcares -lzstd -lnghttp2 -levent -levent_core -levent_extra -levent_openssl -levent_pthreads -lluajit-5.1 -luring-ffi -luring -lz/g' -e 's/"--gdb-index"//g' -e 's/--gdb-index//g' -e 's/--no-gdb-index/-z notext/g' ${f}
+  sed -i -e 's/"--end-lib"//g' -e  's/"--start-lib"//g' -e 's/"--no-gdb-index"//g' -e 's/"--gdb-index"//g' -e 's/--gdb-index//g' -e 's/--no-gdb-index/-z notext/g' ${f}
   cp $f /tmp/ld.file
 fi
 
