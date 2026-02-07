@@ -1,5 +1,5 @@
 # tools/foreign_cc/foreign_cc/defs.bzl
-def cc_library(*args, **kwargs):
+def xxcc_library(*args, **kwargs):
     """Replacement for foreign_cc rules that defines an empty native cc_library."""
     name = kwargs.get("name", "<unknown>")
     # Call the native cc_library function to define a real Bazel target
@@ -16,6 +16,14 @@ def cc_library(*args, **kwargs):
         # linkopts = ["-l" + name], # Only if you have a locally installed .so/.a
         includes = include_paths, 
 	copts = ["-isystem", "/usr/local/include"] 
+    )
+    print("Stub cc_library called and defined native target:", name)
+
+
+def cc_library(**kwargs):
+    name = kwargs.get("name", "<unknown>")
+    native.cc_library(
+        **kwargs
     )
     print("Stub cc_library called and defined native target:", name)
 
