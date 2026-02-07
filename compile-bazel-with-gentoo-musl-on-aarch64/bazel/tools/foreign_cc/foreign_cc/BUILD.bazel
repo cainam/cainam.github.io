@@ -186,7 +186,6 @@ cc_library(
     linkopts = ["/usr/lib/libnghttp2.a"],
     isibility = ["//visibility:public"],
 )
-)
 alias(
     name = "nghttp2_linux",
     actual = ":nghttp2",
