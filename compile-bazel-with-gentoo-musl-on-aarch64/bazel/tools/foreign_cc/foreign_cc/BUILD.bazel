@@ -73,36 +73,17 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-# --- zlib ---
-#cc_library(
-#    name = "zlib",
-#    srcs = [],
-#    hdrs = [],
-#    deps = [],
-#)
-#
-#cc_library(
-#    name = "zlib_linux",
-#    srcs = [],
-#    hdrs = [],
-#    deps = [":zlib"],
-#)
-
-# --- c-ares / ares ---
-# Envoy typically uses the name 'ares' for the c-ares target.
 cc_library(
     name = "ares",
-    srcs = [],
-    hdrs = [],
-    deps = [],
+    linkopts = ["/usr/lib/libcares.a"],
+    visibility = ["//visibility:public"],
+)
+alias(
+    name = "ares_linux",
+    actual = ":ares",
+    visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "ares_linux",
-    srcs = [],
-    hdrs = [],
-    deps = [":ares"],
-)
 
 # --- re2 ---
 cc_library(
