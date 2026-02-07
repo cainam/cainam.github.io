@@ -10,6 +10,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "liburing",
     linkopts = ["/usr/local/lib/liburing.a"],
+        srcs = ["THIS_SHOULD_FAIL.cc"],
     visibility = ["//visibility:public"],
 )
 
