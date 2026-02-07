@@ -26,7 +26,6 @@ cc_library(
     linkopts = ["/usr/local/lib/libevent.a"],
     isibility = ["//visibility:public"],
 )
-)
 alias(
     name = "event_linux",
     actual = ":event",
