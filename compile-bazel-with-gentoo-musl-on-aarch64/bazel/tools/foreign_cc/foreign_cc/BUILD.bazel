@@ -23,7 +23,7 @@ alias(
 # Envoy's internal BUILD files often reference 'event' directly.
 cc_library(
     name = "event",
-    linkopts = ["/usr/local/lib/libevent.a"],
+    linkopts = ["/usr/local/lib/libevent.a","/usr/local/lib/libevent_pthreads.a"],
     visibility = ["//visibility:public"],
 )
 alias(
