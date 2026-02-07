@@ -7,17 +7,9 @@ load("@envoy_foreign_cc//foreign_cc:defs.bzl", "cc_library")
 package(default_visibility = ["//visibility:public"])
 
 # --- liburing ---
-#cc_library(
-#    name = "liburing",
-#    static_library = "/usr/local/lib/liburing.a",
-#    srcs = [],
-#    hdrs = [],
-#    deps = [],
-#        linkstatic = True,
-#)
-cc_import(
+cc_library(
     name = "liburing",
-    static_library = "/usr/local/lib/liburing.a",
+    linkopts = ["/usr/local/lib/liburing.a"],
     visibility = ["//visibility:public"],
 )
 
@@ -80,20 +72,31 @@ cc_library(
     deps = [":protobuf"],
 )
 
-# --- zlib ---
 cc_library(
     name = "zlib",
-    srcs = [],
-    hdrs = [],
-    deps = [],
+    linkopts = ["/usr/lib/libz.a"],
+    visibility = ["//visibility:public"],
+)
+alias(
+    name = "zlib_linux",
+    actual = ":libz",
+    visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "zlib_linux",
-    srcs = [],
-    hdrs = [],
-    deps = [":zlib"],
-)
+# --- zlib ---
+#cc_library(
+#    name = "zlib",
+#    srcs = [],
+#    hdrs = [],
+#    deps = [],
+#)
+#
+#cc_library(
+#    name = "zlib_linux",
+#    srcs = [],
+#    hdrs = [],
+#    deps = [":zlib"],
+#)
 
 # --- c-ares / ares ---
 # Envoy typically uses the name 'ares' for the c-ares target.
