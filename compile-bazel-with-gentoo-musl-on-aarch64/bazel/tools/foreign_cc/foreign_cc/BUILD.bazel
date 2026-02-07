@@ -10,7 +10,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "liburing",
     linkopts = ["/usr/local/lib/liburing.a"],
-    visibility = ["//visibility:public"],
+    isibility = ["//visibility:public"],
 )
 
 alias(
@@ -19,27 +19,18 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-#cc_library(
-#    name = "liburing_linux",
-#    srcs = [],
-#    hdrs = [],
-#    deps = [":liburing"],
-#)
-
 # --- libevent / event ---
 # Envoy's internal BUILD files often reference 'event' directly.
 cc_library(
     name = "event",
-    srcs = [],
-    hdrs = [],
-    deps = [],
+    linkopts = ["/usr/local/lib/libevent.a"],
+    isibility = ["//visibility:public"],
 )
-
-cc_library(
+)
+alias(
     name = "event_linux",
-    srcs = [],
-    hdrs = [],
-    deps = [":event"],
+    actual = ":event",
+    visibility = ["//visibility:public"],
 )
 
 # --- boringssl ---
@@ -192,17 +183,15 @@ cc_library(
 # --- nghttp2 / nghttp ---
 cc_library(
     name = "nghttp2",
-    srcs = [],
-    hdrs = [],
-    deps = [],
+    linkopts = ["/usr/lib/libnghttp2.a"],
+    isibility = ["//visibility:public"],
 )
-
-cc_library(
+)
+alias(
     name = "nghttp2_linux",
-    srcs = [],
-    hdrs = [],
-    deps = [":nghttp2"],
-)
+    actual = ":nghttp2",
+    visibility = ["//visibility:public"],
+)   
 
 cc_library(
     name = "luajit",
