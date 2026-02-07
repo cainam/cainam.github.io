@@ -10,7 +10,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "liburing",
     linkopts = ["/usr/local/lib/liburing.a"],
-    isibility = ["//visibility:public"],
+    visibility = ["//visibility:public"],
 )
 
 alias(
@@ -24,7 +24,7 @@ alias(
 cc_library(
     name = "event",
     linkopts = ["/usr/local/lib/libevent.a"],
-    isibility = ["//visibility:public"],
+    visibility = ["//visibility:public"],
 )
 alias(
     name = "event_linux",
@@ -183,7 +183,7 @@ cc_library(
 cc_library(
     name = "nghttp2",
     linkopts = ["/usr/lib/libnghttp2.a"],
-    isibility = ["//visibility:public"],
+    visibility = ["//visibility:public"],
 )
 alias(
     name = "nghttp2_linux",
