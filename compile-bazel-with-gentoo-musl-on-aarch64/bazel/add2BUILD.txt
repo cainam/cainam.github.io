@@ -9,12 +9,23 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "envoy_version_stub_lib",
+    srcs = ["envoy_version_stub.cc"],
+    hdrs = [],
+    visibility = ["//visibility:private"],
+    alwayslink = 1,
+)
+
+
+
 # Minimal envoy binary
 envoy_cc_binary(
     name = "envoy",
     repository = "@envoy",
     deps = [
         ":envoy_main_cc",
+        ":envoy_version_stub_lib",
     ] + ISTIO_EXTENSIONS,
 )
 
