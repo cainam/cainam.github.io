@@ -1,9 +1,54 @@
-register_toolchains("//tools/python:python_toolchain")
-
-local_repository(
-    name = "python3_12_host",
-    path = "fake_python3_12_host",
+# Define the actual content once
+http_archive(
+    name = "com_google_cel_spec",
+    sha256 = "13583c5a312861648449845b709722676a3c9b43396b6b8e9cbe4538feb74ad2",
+    strip_prefix = "cel-spec-0.25.1",
+    urls = ["https://github.com/google/cel-spec/archive/v0.25.1.tar.gz"],
 )
+
+# Define the alias name to point to the EXACT same archive
+# This ensures that both @dev_cel and @com_google_cel_spec
+# refer to the same logical files, but Bazel still sees two repos.
+http_archive(
+    name = "dev_cel",
+    sha256 = "13583c5a312861648449845b709722676a3c9b43396b6b8e9cbe4538feb74ad2",
+    strip_prefix = "cel-spec-0.25.1",
+    urls = ["https://github.com/google/cel-spec/archive/v0.25.1.tar.gz"],
+)
+
+http_archive(
+    name = "com_github_cncf_xds",
+    sha256 = "82363065ca2c978398d2307fe960c301a0b6655d55981fac017783bba22771d9",
+    strip_prefix = "xds-8bfbf64dc13ee1a570be4fbdcfccbdd8532463f0",
+    urls = [ "https://storage.googleapis.com/grpc-bazel-mirror/github.com/cncf/xds/archive/8bfbf64dc13ee1a570be4fbdcfccbdd8532463f0.tar.gz",
+             "https://github.com/cncf/xds/archive/8bfbf64dc13ee1a570be4fbdcfccbdd8532463f0.tar.gz"],
+    patch_cmds = [
+            # 1. Update the dependency definitions in the .bzl files
+        "sed -i 's/\"dev_cel\"/\"com_google_cel_spec\"/g' bazel/repository_locations.bzl",
+        "sed -i 's/name = \"dev_cel\"/name = \"com_google_cel_spec\"/g' bazel/repositories.bzl",
+
+        # 2. Update all references in BUILD and .bzl files
+        "find . -type f -name 'BUILD' -exec sed -i 's/@dev_cel/@com_google_cel_spec/g' {} +",
+        "find . -type f -name '*.bzl' -exec sed -i 's/@dev_cel/@com_google_cel_spec/g' {} +",
+        "find . -type f -name 'MODULE.bazel' -exec sed -i 's/@dev_cel/@com_google_cel_spec/g' {} +",
+        "sed -i '/cel-spec/d' MODULE.bazel",
+    ],
+)
+
+http_archive(
+    name = "rules_python",
+    sha256 = "f609f341d6e9090b981b3f45324d05a819fd7a5a56434f849c761971ce2c47da",
+    strip_prefix = "rules_python-1.7.0",
+    url = "https://github.com/bazel-contrib/rules_python/releases/download/1.7.0/rules_python-1.7.0.tar.gz",
+    patch_cmds = [
+    "sed -i '/\"3.12.12\": {/,/\"strip_prefix\"/ s/\"sha256\": {/&\\\n            \"aarch64-unknown-linux-musl\": \"1ea93c2ec158c3ede85e7123a2492a5d04e403ef2d924245f3e0e38276274779\",/' python/versions.bzl",
+            "sed -i '/platforms = {/a\\\n        \"aarch64-unknown-linux-musl\": platform_info(\\\n            compatible_with = [\\\n                \"@platforms//os:linux\",\\\n                \"@platforms//cpu:aarch64\",\\\n            ],\\\n            os_name = LINUX_NAME,\\\n            arch = \"aarch64\",\\\n        ),' python/versions.bzl",
+            ]
+)
+
+repo_mapping = {
+    "@dev_cel": "@com_google_cel_spec",
+}
 
 local_repository(
     name = "local_jdk",
@@ -14,4 +59,6 @@ register_toolchains(
     "@local_jdk//:bootstrap_runtime_toolchain_definition",
     "@local_jdk//:runtime_toolchain_definition",
 )
+
+register_toolchains("@toolchains_llvm//toolchain:all")
 

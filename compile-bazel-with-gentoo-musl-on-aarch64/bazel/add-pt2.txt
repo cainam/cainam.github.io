@@ -1,10 +1,11 @@
-        patch_cmds = [
+    patch_cmds = [
 "sed -i 's/name = \"event\"/name = \"unused_event\"/' bazel/foreign_cc/BUILD",
         """printf '\ncc_library(
     name = "event",
     includes = ["/usr/local/include"],
-    linkopts = ["-L/usr/local/lib", "-levent"],
+    linkopts = ["-L/usr/local/lib", "-levent", "-levent_pthreads" ],
     visibility = ["//visibility:public"],
 )\n' >> bazel/foreign_cc/BUILD""",
+    "sed -i 's/PYTHON_VERSION = \"[^\"]*\"/PYTHON_VERSION = \"3.12.12\"/' bazel/repositories_extra.bzl",
     ],
 
