@@ -9,12 +9,12 @@ http_archive(
 # Define the alias name to point to the EXACT same archive
 # This ensures that both @dev_cel and @com_google_cel_spec
 # refer to the same logical files, but Bazel still sees two repos.
-http_archive(
-    name = "dev_cel",
-    sha256 = "13583c5a312861648449845b709722676a3c9b43396b6b8e9cbe4538feb74ad2",
-    strip_prefix = "cel-spec-0.25.1",
-    urls = ["https://github.com/google/cel-spec/archive/v0.25.1.tar.gz"],
-)
+#http_archive(
+#    name = "dev_cel",
+#    sha256 = "13583c5a312861648449845b709722676a3c9b43396b6b8e9cbe4538feb74ad2",
+#    strip_prefix = "cel-spec-0.25.1",
+#    urls = ["https://github.com/google/cel-spec/archive/v0.25.1.tar.gz"],
+#)
 
 http_archive(
     name = "com_github_cncf_xds",
@@ -23,11 +23,8 @@ http_archive(
     urls = [ "https://storage.googleapis.com/grpc-bazel-mirror/github.com/cncf/xds/archive/8bfbf64dc13ee1a570be4fbdcfccbdd8532463f0.tar.gz",
              "https://github.com/cncf/xds/archive/8bfbf64dc13ee1a570be4fbdcfccbdd8532463f0.tar.gz"],
     patch_cmds = [
-            # 1. Update the dependency definitions in the .bzl files
         "sed -i 's/\"dev_cel\"/\"com_google_cel_spec\"/g' bazel/repository_locations.bzl",
         "sed -i 's/name = \"dev_cel\"/name = \"com_google_cel_spec\"/g' bazel/repositories.bzl",
-
-        # 2. Update all references in BUILD and .bzl files
         "find . -type f -name 'BUILD' -exec sed -i 's/@dev_cel/@com_google_cel_spec/g' {} +",
         "find . -type f -name '*.bzl' -exec sed -i 's/@dev_cel/@com_google_cel_spec/g' {} +",
         "find . -type f -name 'MODULE.bazel' -exec sed -i 's/@dev_cel/@com_google_cel_spec/g' {} +",
@@ -46,9 +43,9 @@ http_archive(
             ]
 )
 
-repo_mapping = {
-    "@dev_cel": "@com_google_cel_spec",
-}
+#repo_mapping = {
+#    "@dev_cel": "@com_google_cel_spec",
+#}
 
 local_repository(
     name = "local_jdk",
