@@ -1,75 +1,70 @@
 # Compiling Envoy proxy for istio on an aarch64 system and musl libc
 
-I didn't succeed! Each single step forward was tricky, but I managed to move quite far but in the end I didn't manage to get it done.
+I am using istio as gateway which embeds envoy proxy. Like for all other software I am building it from scratch
+* in Gentoo image
+* with musl libc
+* on aarch64
 
-This is how I tried to build Envoy:
+I manage to succeed building istio including envoy proxy completely but it was a long journey over months (not only but also because each build of envoy took two days on my Raspberry PI 4 I used initially) and it was a hard journey to have the right configuration which works with the complex dependencies of envoy.
+
+My setup:
 * Raspberry PI with Gentoo
 * Gentoo build container based on musl
 * Bazel as build environment inside the container and finally
 * building Envoy proxy using Bazel.
 
-The following is a sequence I was trying to get bazel compiled on aarch64 with musl:
-- I managed to get bazel using local python installation
-- I managed to get bazel using local JDK
-but I failed for the C-Compiler.
+## building phases
+Each phase is implemented as a container image
 
-this compile works without gdb-index AND -nostdlib removal but I didn't manage to get bazel configured changing the options
-I also didn't manage to get bazel reconfigured for using gcc so I gave up
+### phase 1: bazel
+* bazel is the tool which manages the complex build of envoy proxy
+* building bazel requires java and a java distribution had to be taken which supports aarch64 as well as musl libc, so I choosed zulu
+* envoy build up to version 1.29 at least is only compatible with bazel 7, not higher major releases
+* it did not build out of the box, but some alpine patches solved the issue as alpine is building bazel, too
 
-### compiling bazel inside a container
+### phase 2: envoy-base
+* provides addition dependencies required to build envoy:
+  * software which is not well resolved within envoy build because e.g. no musl compatible package is available:
+    * icu 
+    * libevent
+    * luajit
+    * c-ares
+    * zstd
+    * nghttp2
+    * zlib
+  * clang and clang++ because missing llvm with gcc created some incompatibilities and my config is based on compiling envoy itself using llvm
+  * a wrapper script for aarch64-unknown-linux-musl-ld.bfd to filter out incompatible options like --no-gdb-index and enforce some libraries to be hardcoded
 
-The very first challenge was to get a usable jdk, but zulu turned out to work well:
-```
-tar xfz zulu21.44.17-ca-jdk21.0.8-linux_musl_aarch64.tar.gz 
-export JAVA_HOME=/root/zulu21.44.17-ca-jdk21.0.8-linux_musl_aarch64
-export PATH=$JAVA_HOME/bin/:$PATH 
-```
+### phase 3: envoy
+* tcmalloc=disabled because tcmalloc is not compatible with musl
+* tools/jdk/ override repository to use the local java installation
+* @rules_foreign_cc//toolchains:cmake_toolchain to support @platforms//cpu:aarch64
+* WORKSPACE file modifications:
+  * addressing a conflict between com_google_cel_spec and dev_cel:
+    * add working com_google_cel_spec archive
+    * add http_archive for com_github_cncf_xds with patches
+  * include local_jdk override repository
+  * add http_archive for rules_python with patches to use aarch64-unknown-linux-musl compatible version of python
+  * register_toolchains("@toolchains_llvm//toolchain:all")
+  * sed -i '/PATH/d' .bazelrc
+  * sed -e '/googleurl/d' -i envoy.bazelrc
+  * sed -e '/BAZEL_DO_NOT_DETECT_CPP_TOOLCH/d' -i envoy.bazelrc
 
-Preparing bazel from source:
-```
-cd bazel
-unzip ../bazel-8.3.1-dist.zip 
-emerge app-arch/zip
-sed -i '/nano/d' /etc/portage/profile/package.provided | grep nano
-emerge --usepkg app-editors/nano
-```
+### phase 4: proxyv2
+a simple go build of istio/pilot/cmd/pilot-agent
 
-Bazel requires some fixes because it is not compatible with aarch64 and musl, but these fixes are already made available by Alpine (`patch -p1 < 0001-off64t-fix.patch`):
-* bazel 8 apply https://gitlab.alpinelinux.org/alpine/aports/-/blob/e49daeab5c9554e8cb7ca23547037d6659d7be43/testing/bazel8/0001-off64t-fix.patch
-* bazel 7 apply https://gitlab.alpinelinux.org/alpine/aports/-/blob/e49daeab5c9554e8cb7ca23547037d6659d7be43/testing/bazel7/0001-off64t-fix.patch but remove abuild subdirectory
+### phase 5: pilot
+a simple go build of istio/pilot/cmd/pilot-discovery
+ 
+## what remains to be done
+* improve the ld wrapper script, esp. to avoid hardcoded libraries
+* verify again the WORKSPACE modifications to reduce them further again
 
-Building and putting in place bazel:
-```
-env EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk" bash ./compile.sh
-cp -dp output/bazel $JAVA_HOME/bin
-```
+## conclusion
+Building envoy proxy from scratch on a Gentoo musl aarch64 systems is not trivial and up to know it requires quite some additional effort to maintain all the modifications which had to be made.
+There is also no guarantee that the build gets quickly broken again by a new istio/proxyv2 release.
 
-### compiling Envoy proxy using bazel
-```
-emerge -v llvm-core/clang llvm-runtimes/libcxx #llvm-runtimes/libcxxabi
-git clone https://github.com/istio/proxy.git
-cd proxy && git checkout release-1.26
-echo "build --define tcmalloc=gperftools # in .bazelrc" >> .bazelrc 
 
-export JAVA_HOME=/root/zulu21.44.17-ca-jdk21.0.8-linux_musl_aarch64
-PATH=/usr/lib/llvm/20/bin/:${JAVA_HOME}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-export CC=/usr/lib/llvm/20/bin/clang
-sed -i '/PATH/d' .bazelrc
-```
 
-+ files in bazel directory!!!
 
-.bazelrc contains: build:linux --action_env=PATH=/usr/lib/llvm/bin:/usr/local/bin:/bin:/usr/bin => try to comment this line
-```
-bazel build --verbose_failures --strip=always --config=sizeopt --noenable_bzlmod -- //:envoy 
-time bazel build --verbose_failures --strip=always --config=sizeopt --noenable_bzlmod  --python_path=/usr/sbin/python3 --host_force_python=PY3 --extra_toolchains=//tools/python:noop_python_toolchain --extra_toolchains=//tools/python:system_python_toolchain  --toolchain_resolution_debug=1 --sandbox_debug --copt=-Wno-error --java_runtime_version=local_jdk --tool_java_runtime_version=local_jdk   -- //:envoy 
-```
 
-this fails:
-```
-/usr/lib/llvm/20/bin/clang-20 -U_FORTIFY_SOURCE -fstack-protector -Wall -Wthread-safety -Wself-assign -Wunused-but-set-parameter -Wno-free-nonheap-object -fcolor-diagnostics -fno-omit-frame-pointer -g0 -O2 -D_FORTIFY_SOURCE=1 -DNDEBUG -ffunction-sections -fdata-sections -no-canonical-prefixes -Wno-builtin-macro-redefined -D__DATE__=redacted -D__TIMESTAMP__=redacted -D__TIME__=redacted -DABSL_MIN_LOG_LEVEL=4 -fdebug-types-section -fPIC -Wno-deprecated-declarations -Wno-error=deprecated-enum-enum-conversion -DNULL_PLUGIN -Os -Wno-error -fexceptions   -Wl,-S -fuse-ld=/usr/lib/llvm/20/bin/ld.lld -B/usr/lib/llvm/20/bin -Wl,-no-as-needed -Wl,-z,relro,-z,now -lm -pthread -Wl,--gc-sections -l:libstdc++.a -fuse-ld=lld -nostdlib -lpthread a.c  -Wl,--gdb-index -v
-```
-
-### bazel debug: 
-bazel query --output=build @python3_12_host//...
- bazel query --output=build @base_pip3_jinja2//...
