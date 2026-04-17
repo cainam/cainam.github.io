@@ -14,6 +14,8 @@ My setup:
 * Bazel as build environment inside the container and finally
 * building Envoy proxy using Bazel.
 
+All the steps can be foudn in [the file I used to build the images](https://github.com/cainam/application-specifics/blob/main/istiod/vars/application_images.yaml)
+
 ## building phases
 Each phase is implemented as a container image
 
