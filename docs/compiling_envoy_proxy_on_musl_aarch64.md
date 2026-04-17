@@ -6,6 +6,7 @@ I am using istio as gateway which embeds envoy proxy. Like for all other softwar
 * on aarch64
 
 I manage to succeed building istio including envoy proxy completely but it was a long journey over months (not only but also because each build of envoy took two days on my Raspberry PI 4 I used initially) and it was a hard journey to have the right configuration which works with the complex dependencies of envoy.
+The setup worked for me compiling both, 1.28 and 1.29 releases except 1.29.1 which introduced a dependency issue on istio/proxyv2 side itself.
 
 My setup:
 * Raspberry PI with Gentoo
@@ -61,10 +62,9 @@ a simple go build of istio/pilot/cmd/pilot-discovery
 * verify again the WORKSPACE modifications to reduce them further again
 
 ## conclusion
-Building envoy proxy from scratch on a Gentoo musl aarch64 systems is not trivial and up to know it requires quite some additional effort to maintain all the modifications which had to be made.
+Building envoy proxy from scratch on a Gentoo musl aarch64 systems is not trivial.
+
+Up to now it requires quite some additional effort to maintain all the modifications which had to be made.
+
 There is also no guarantee that the build gets quickly broken again by a new istio/proxyv2 release.
-
-
-
-
 
