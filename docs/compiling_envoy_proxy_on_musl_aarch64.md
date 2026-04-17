@@ -34,7 +34,7 @@ Each phase is implemented as a container image
     * nghttp2
     * zlib
   * clang and clang++ because missing llvm with gcc created some incompatibilities and my config is based on compiling envoy itself using llvm
-  * a wrapper script for aarch64-unknown-linux-musl-ld.bfd to filter out incompatible options like --no-gdb-index and enforce some libraries to be hardcoded
+  * a wrapper script for aarch64-unknown-linux-musl-ld.bfd to filter out incompatible options like --no-gdb-index, --start-lib and --end-lib
 
 ### phase 3: envoy
 * tcmalloc=disabled because tcmalloc is not compatible with musl
