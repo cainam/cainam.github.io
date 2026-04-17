@@ -6,16 +6,6 @@ http_archive(
     urls = ["https://github.com/google/cel-spec/archive/v0.25.1.tar.gz"],
 )
 
-# Define the alias name to point to the EXACT same archive
-# This ensures that both @dev_cel and @com_google_cel_spec
-# refer to the same logical files, but Bazel still sees two repos.
-#http_archive(
-#    name = "dev_cel",
-#    sha256 = "13583c5a312861648449845b709722676a3c9b43396b6b8e9cbe4538feb74ad2",
-#    strip_prefix = "cel-spec-0.25.1",
-#    urls = ["https://github.com/google/cel-spec/archive/v0.25.1.tar.gz"],
-#)
-
 http_archive(
     name = "com_github_cncf_xds",
     sha256 = "82363065ca2c978398d2307fe960c301a0b6655d55981fac017783bba22771d9",
@@ -42,10 +32,6 @@ http_archive(
             "sed -i '/platforms = {/a\\\n        \"aarch64-unknown-linux-musl\": platform_info(\\\n            compatible_with = [\\\n                \"@platforms//os:linux\",\\\n                \"@platforms//cpu:aarch64\",\\\n            ],\\\n            os_name = LINUX_NAME,\\\n            arch = \"aarch64\",\\\n        ),' python/versions.bzl",
             ]
 )
-
-#repo_mapping = {
-#    "@dev_cel": "@com_google_cel_spec",
-#}
 
 local_repository(
     name = "local_jdk",
