@@ -36,12 +36,12 @@ Each phase is implemented as a container image
     * nghttp2
     * zlib
   * clang and clang++ because missing llvm with gcc created some incompatibilities and my config is based on compiling envoy itself using llvm
-  * a wrapper script for aarch64-unknown-linux-musl-ld.bfd to filter out incompatible options like --no-gdb-index, --start-lib and --end-lib
 
 ### phase 3: envoy
 * tcmalloc=disabled because tcmalloc is not compatible with musl
 * tools/jdk/ override repository to use the local java installation
 * @rules_foreign_cc//toolchains:cmake_toolchain to support @platforms//cpu:aarch64
+* long list of bazel_options which grew over the time during my journey to move forward, not all options might be neccessary
 * WORKSPACE file modifications:
   * addressing a conflict between com_google_cel_spec and dev_cel:
     * add working com_google_cel_spec archive
@@ -60,7 +60,6 @@ a simple go build of istio/pilot/cmd/pilot-agent
 a simple go build of istio/pilot/cmd/pilot-discovery
  
 ## what remains to be done
-* improve the ld wrapper script, esp. to avoid hardcoded libraries
 * verify again the WORKSPACE modifications to reduce them further again
 
 ## conclusion
