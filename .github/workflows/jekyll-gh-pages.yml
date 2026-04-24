@@ -64,9 +64,14 @@ jobs:
           find ./_site -maxdepth 1 -name "*.html" -printf "%f\n"|while read f;do basename "${f}"|sed -e 's/\.html$//g';done > ./docs/_data/pages.txt
           git config user.name "GitHub Actions" && git config user.email "actions@github.com"
           git add ./docs/_data/pages.txt
-          git diff --staged --quiet || git commit -m "Automated: pages inventory of repo" # git diff to prevent empty commits
-          git push
-          
+          if ! git diff --staged --quiet; then
+            git commit -m "Automated: pages inventory of repo"
+            # Fetch and rebase to handle the "rejected" error
+            git pull --rebase origin ${{ github.ref_name }}
+            git push
+          else
+            echo "No changes to pages.txt, skipping push."
+          fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
