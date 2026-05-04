@@ -30,11 +30,6 @@ Each phase is implemented as a container image
   * software which is not well resolved within envoy build because e.g. no musl compatible package is available:
     * icu 
     * libevent
-    * luajit
-    * c-ares
-    * zstd
-    * nghttp2
-    * zlib
   * clang and clang++ because missing llvm with gcc created some incompatibilities and my config is based on compiling envoy itself using llvm
 
 ### phase 3: envoy
@@ -43,16 +38,13 @@ Each phase is implemented as a container image
 * @rules_foreign_cc//toolchains:cmake_toolchain to support @platforms//cpu:aarch64
 * long list of bazel_options which grew over the time during my journey to move forward, not all options might be neccessary
 * WORKSPACE file modifications:
-  * addressing a conflict between com_google_cel_spec and dev_cel:
-    * add working com_google_cel_spec archive
-    * add http_archive for com_github_cncf_xds with patches
   * include local_jdk override repository
   * add http_archive for rules_python with patches to use aarch64-unknown-linux-musl compatible version of python
   * register_toolchains("@toolchains_llvm//toolchain:all")
   * sed -i '/PATH/d' .bazelrc
   * sed -e '/googleurl/d' -i envoy.bazelrc
   * sed -e '/BAZEL_DO_NOT_DETECT_CPP_TOOLCH/d' -i envoy.bazelrc
-
+      
 ### phase 4: proxyv2
 a simple go build of istio/pilot/cmd/pilot-agent
 
@@ -69,3 +61,10 @@ Up to now it requires quite some additional effort to maintain all the modificat
 
 There is also no guarantee that the build gets quickly broken again by a new istio/proxyv2 release.
 
+## some intermediate workarounds I removed again:
+WORKSPACE:
+  * addressing a conflict between com_google_cel_spec and dev_cel:
+    * add working com_google_cel_spec archive
+    * add http_archive for com_github_cncf_xds with patches
+
+With some istio/proxy releases I had to provide a locally installed version of luajit, c-ares, zstd, zlib and nghttp2 installed, but since 1.29.2 (maybe already before) they are no longer required.
