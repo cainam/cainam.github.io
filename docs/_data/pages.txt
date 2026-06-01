@@ -1,3 +1,4 @@
 oauth2-sequence-with-curl
+capture-and-analyze-router-traffic
 compiling_envoy_proxy_on_musl_aarch64
 index
