@@ -73,7 +73,7 @@ jobs:
             echo "No changes to pages.txt, skipping push."
           fi
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
 
   # Deployment job
   deploy:
