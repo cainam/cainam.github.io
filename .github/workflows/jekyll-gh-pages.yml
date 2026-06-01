@@ -33,7 +33,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download Site Inventory
         run: |
           mkdir -p docs/_data/
@@ -50,7 +50,7 @@ jobs:
           ls -Rl docs
           
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
